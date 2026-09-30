@@ -1,0 +1,59 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "centralog/error-monitoring-laravel",
+    "description": "Laravel SDK for Centralog error monitoring. Captures exceptions and sends a copy to your Centralog platform without breaking your app.",
+    "keywords": [
+        "laravel",
+        "error-monitoring",
+        "centralog"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.0",
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Centralog\\ErrorMonitoring\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Centralog\\ErrorMonitoring\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Centralog\\ErrorMonitoring\\CentralogServiceProvider"
+            ],
+            "aliases": {
+                "Centralog": "Centralog\\ErrorMonitoring\\Facades\\Centralog"
+            }
+        }
+    },
+    "scripts": {
+        "test": [
+            "@php vendor/bin/pint --test",
+            "@php vendor/bin/phpstan analyse",
+            "@php vendor/bin/pest"
+        ],
+        "lint": [
+            "@php vendor/bin/pint"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
