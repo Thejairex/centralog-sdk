@@ -52,6 +52,29 @@ Centralog::context(['tenant' => 'acme', 'order_id' => 9182]);
 
 Your local `laravel.log` keeps working as always — the SDK only sends a **copy** to Centralog.
 
+## Errores personalizados
+
+Cualquier excepción (incluidas las de tu dominio) se puede capturar. Podés
+capturarlas manualmente donde convenga y elegir el nivel (`error`, `warning`,
+`info` o `debug`):
+
+```php
+use Centralog\ErrorMonitoring\Facades\Centralog;
+
+class PaymentFailedException extends \RuntimeException {}
+
+try {
+    charge($order);
+} catch (PaymentFailedException $e) {
+    Centralog::capture($e, ['order_id' => $order->id], 'warning');
+}
+```
+
+Cada excepción se agrupa en Centralog por **clase + archivo + línea**, así que
+cada excepción custom de tu dominio genera su propio grupo en el panel.
+
+Niveles válidos: `error` (default), `warning`, `info`, `debug`.
+
 ## Safety
 
 - Short timeout (2s default), never blocks a request for long.

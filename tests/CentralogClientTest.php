@@ -1,6 +1,7 @@
 <?php
 
 use Centralog\ErrorMonitoring\CentralogClient;
+use Centralog\ErrorMonitoring\PayloadBuilder;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -84,4 +85,33 @@ test('extra context is merged into captured events', function () {
     $client->flushContext();
 
     expect($client->getContext())->toBe([]);
+});
+
+test('capture sends a custom domain exception with a custom level', function () {
+    Http::fake([
+        'centralog.test/*' => Http::response(['event_id' => 'event_123'], 201),
+    ]);
+
+    $exception = new DomainException('Payment gateway unavailable');
+
+    $client = makeClient();
+
+    expect($client->capture($exception, ['order_id' => 9182], 'warning'))->toBeTrue();
+
+    Http::assertSent(function ($request) {
+        return $request['level'] === 'warning'
+            && $request['exception']['class'] === DomainException::class
+            && $request['exception']['message'] === 'Payment gateway unavailable'
+            && $request['context'] === ['order_id' => 9182];
+    });
+});
+
+test('payload builder sends custom domain exceptions', function () {
+    $exception = new DomainException('Custom payment failure');
+
+    $payload = PayloadBuilder::build($exception, 'production', null, 'info');
+
+    expect($payload['level'])->toBe('info');
+    expect($payload['exception']['class'])->toBe(DomainException::class);
+    expect($payload['exception']['message'])->toBe('Custom payment failure');
 });
